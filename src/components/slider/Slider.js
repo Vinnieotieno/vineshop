@@ -1,82 +1,68 @@
-import { useEffect, useState } from "react";
-import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
-import { sliderData } from "./slider-data";
-import "./Slider.scss";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import './Slider.scss';
+import { AiOutlineArrowLeft, AiOutlineArrowRight } from 'react-icons/ai';
+import { sliderData } from './slider-data';
+import { useNavigate } from 'react-router-dom';
 
 const Slider = () => {
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const slideLength = sliderData.length;
-  //   console.log(slideLength);
-  const navigate = useNavigate();
+    const [currentSlide, setCurrentSlide] = useState(0);
+    const navigate = useNavigate();
 
-  const autoScroll = true;
-  let slideInterval;
-  let intervalTime = 5000;
+    const prevSlide = () => {
+        const newSlide = currentSlide === 0 ? sliderData.length - 1 : currentSlide - 1;
+        setCurrentSlide(newSlide);
+    };
 
-  const nextSlide = () => {
-    setCurrentSlide(currentSlide === slideLength - 1 ? 0 : currentSlide + 1);
-  };
+    const nextSlide = () => {
+        const newSlide = currentSlide === sliderData.length - 1 ? 0 : currentSlide + 1;
+        setCurrentSlide(newSlide);
+    };
 
-  const prevSlide = () => {
-    setCurrentSlide(currentSlide === 0 ? slideLength - 1 : currentSlide - 1);
-  };
+    // Auto-scrolling functionality
+    useEffect(() => {
+        const autoScroll = true;
+        let slideInterval;
 
-  useEffect(() => {
-    setCurrentSlide(0);
-  }, []);
+        if (autoScroll) {
+            slideInterval = setInterval(() => {
+                nextSlide();
+            }, 5000);
+        }
 
-  //   const auto = () => {
-  //     slideInterval = setInterval(nextSlide, intervalTime);
-  //   };
+        return () => {
+            clearInterval(slideInterval);
+        };
+    }, [currentSlide]);
 
-  useEffect(() => {
-    if (autoScroll) {
-      const auto = () => {
-        slideInterval = setInterval(nextSlide, intervalTime);
-      };
-      auto();
-    }
-    return () => clearInterval(slideInterval);
-  }, [currentSlide, slideInterval, autoScroll]);
+    return (
+        <div className="slider">
+            <AiOutlineArrowLeft className="arrow prev" onClick={prevSlide} />
+            <AiOutlineArrowRight className="arrow next" onClick={nextSlide} />
+            {sliderData.map((slide, index) => {
+                const { image, heading, desc } = slide;
 
-  return (
-    <div className="slider">
-      <AiOutlineArrowLeft className="arrow prev" onClick={prevSlide} />
-      <AiOutlineArrowRight className="arrow next" onClick={nextSlide} />
-
-      {sliderData.map((slide, index) => {
-        const { image, heading, desc } = slide;
-        return (
-          <div
-            key={index}
-            className={index === currentSlide ? "slide current" : "slide"}
-          >
-            {index === currentSlide && (
-              <>
-                <img src={image} alt="slide" />
-                <div className="content">
-                  <span className="span1"></span>
-                  <span className="span2"></span>
-                  <span className="span3"></span>
-                  <span className="span4"></span>
-                  <h2>{heading}</h2>
-                  <p>{desc}</p>
-                  <hr />
-                  <button
-                    className="--btn --btn-primary"
-                    onClick={() => navigate("/shop")}
-                  >
-                    Shop Now
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
+                return (
+                    <div key={index} className={index === currentSlide ? 'slide current' : 'slide'}>
+                        {index === currentSlide && (
+                            <>
+                                <img src={image} alt={heading} />
+                                <div className="content">
+                                    <span className="span1"></span>
+                                    <span className="span2"></span>
+                                    <span className="span3"></span>
+                                    <span className="span4"></span>
+                                    <h2>{heading}</h2>
+                                    <p>{desc}</p>
+                                    <hr />
+                                    <button className="--btn --btn-primary" onClick={() => navigate('/shop')}>Shop Now</button>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                );
+            })}
+        </div>
+    );
 };
 
 export default Slider;

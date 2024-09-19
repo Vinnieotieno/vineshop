@@ -1,126 +1,125 @@
-import { useEffect, useState } from "react";
-import styles from "./auth.module.scss";
-import registerImg from "../../assets/register.png";
-import Card from "../../components/card/Card";
-import { Link, useNavigate } from "react-router-dom";
-import Loader from "../../components/loader/Loader";
-import { toast } from "react-toastify";
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from "react-redux";
-import { validateEmail } from "../../redux/features/auth/authService";
-import { RESET_AUTH, register } from "../../redux/features/auth/authSlice";
+import { toast } from 'react-toastify';
+import { RESET_AUTH, register } from '../../redux/features/auth/authSlice';
+import { validateEmail } from '../../utils';
+import Card from "../../components/card/Card";
+import Loader from '../../components/loader/Loader';
+import registerImg from "../../assets/register.png";
+import styles from "./Auth.module.scss";
 
 const initialState = {
-  name: "",
-  email: "",
-  password: "",
-  cPassword: "",
+    name: "",
+    email: "",
+    password: "",
+    cPassword: "",
 };
 
 const Register = () => {
-  const [formData, setFormData] = useState(initialState);
-  const { name, email, password, cPassword } = formData;
+    const [formData, setFormData] = useState(initialState);
+    const { name, email, password, cPassword } = formData;
+    const { isLoading, isSuccess, isError, message } = useSelector((state) => state.auth);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
 
-  const { isLoading, isLoggedIn, isSuccess, message } = useSelector(
-    (state) => state.auth
-  );
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const registerUser = async (e) => {
-    e.preventDefault();
-    if (!email || !password) {
-      return toast.error("All fields are required");
-    }
-    if (password.length < 6) {
-      return toast.error("Password must be up to 6 characters");
-    }
-    if (!validateEmail(email)) {
-      return toast.error("Please enter a valid email");
-    }
-    if (password !== cPassword) {
-      toast.error("Passwords do not match.");
-    }
-    const userData = {
-      name,
-      email,
-      password,
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: value });
     };
 
-    console.log(userData);
-    await dispatch(register(userData));
-  };
+    const registerUser = async (e) => {
+        e.preventDefault();
+        if (!email || !password || !cPassword) {
+            return toast.error("All fields are required");
+        }
+        if (password.length < 6) {
+            return toast.error("Password must be at least 6 characters");
+        }
+        if (!validateEmail(email)) {
+            return toast.error("Please enter a valid email");
+        }
+        if (password !== cPassword) {
+            return toast.error("Passwords do not match");
+        }
 
-  useEffect(() => {
-    if (isSuccess && isLoggedIn) {
-      navigate("/");
-    }
+        const userData = {
+            name,
+            email,
+            password,
+        };
 
-    dispatch(RESET_AUTH());
-  }, [isLoggedIn, isSuccess, dispatch, navigate]);
+        await dispatch(register(userData));
+    };
 
-  return (
-    <>
-      {isLoading && <Loader />}
-      <section className={`container ${styles.auth}`}>
-        <Card>
-          <div className={styles.form}>
-            <h2>Register</h2>
+    useEffect(() => {
+        if (isSuccess) {
+            navigate("/");
+            toast.success("Registration successful!");
+        } else if (isError) {
+            toast.error(message);
+        }
 
-            <form onSubmit={registerUser}>
-              <input
-                type="text"
-                placeholder="Name"
-                required
-                name="name"
-                value={name}
-                onChange={handleInputChange}
-              />
-              <input
-                type="text"
-                placeholder="Email"
-                required
-                name="email"
-                value={email}
-                onChange={handleInputChange}
-              />
-              <input
-                type="password"
-                placeholder="Password"
-                required
-                name="password"
-                value={password}
-                onChange={handleInputChange}
-              />
-              <input
-                type="password"
-                placeholder="Confirm Password"
-                required
-                name="cPassword"
-                value={cPassword}
-                onChange={handleInputChange}
-              />
-              <button type="submit" className="--btn --btn-primary --btn-block">
-                Register
-              </button>
-            </form>
+        dispatch(RESET_AUTH());
 
-            <span className={styles.register}>
-              <p>Already an account?</p>
-              <Link to="/login">Login</Link>
-            </span>
-          </div>
-        </Card>
-        <div className={styles.img}>
-          <img src={registerImg} alt="Register" width="400" />
-        </div>
-      </section>
-    </>
-  );
+    }, [isSuccess, isError, message, dispatch, navigate])
+
+    return (
+        <>
+            {isLoading && <Loader/>}
+            <section className={`container ${styles.auth}`}>
+                <Card>
+                    <div className={styles.form}>
+                        <h2>Register</h2>
+                        <form onSubmit={registerUser}>
+                            <input
+                                type="text"
+                                placeholder="Name"
+                                required
+                                name="name"
+                                value={name}
+                                onChange={handleInputChange}
+                            />
+                            <input
+                                type="text"
+                                placeholder="Email"
+                                required
+                                name="email"
+                                value={email}
+                                onChange={handleInputChange}
+                            />
+                            <input
+                                type="password"
+                                placeholder="Password"
+                                required
+                                name="password"
+                                value={password}
+                                onChange={handleInputChange}
+                            />
+                            <input
+                                type="password"
+                                placeholder="Confirm Password"
+                                required
+                                name="cPassword"
+                                value={cPassword}
+                                onChange={handleInputChange}
+                            />
+                            <button type="submit" className="--btn --btn-primary --btn-block">
+                                Register
+                            </button>
+                        </form>
+                        <span className={styles.register}>
+                            <p>Already have an account?</p>
+                            <Link to="/login">Login</Link>
+                        </span>
+                    </div>
+                </Card>
+                <div className={styles.img}>
+                    <img src={registerImg} alt="Register" width="400" />
+                </div>
+            </section>
+        </>
+    );
 };
 
 export default Register;

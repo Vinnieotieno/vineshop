@@ -1,8 +1,7 @@
-import React from "react";
-import Carousel from "react-multi-carousel";
-import "react-multi-carousel/lib/styles.css";
-import "./Carousel.scss";
-import { responsive } from "./data";
+import React from 'react';
+import Carousel from 'react-multi-carousel';
+import 'react-multi-carousel/lib/styles.css';
+import { responsive } from './data';
 
 const ProductCarousel = ({ products }) => {
   return (
